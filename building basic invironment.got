@@ -1,0 +1,42 @@
+heat_template_version: newton
+resources:
+    webserver:
+        type: OS::Nova::Server
+        properties:
+            name: www_server
+            key_name: scrm-keypair1
+            image: devOS-3.5
+            flavor: m1.tiny
+            networks: 
+                - network: dev-www-net
+            security_groups:
+                - default
+                - Allow-ICMP 
+    dbserver:
+        type: OS::Nova::Server
+        properties:
+            name: db_server
+            key_name: scrm-keypair1
+            image: devOS-3.5
+            flavor: m1.tiny
+            networks: 
+                - network: dev-db-net
+            security_groups:
+                - default
+                - Allow-ICMP 
+    router_port_www:
+        type: OS::Neutron::RouterInterface 
+        properties:
+            router: { get_resource: router}
+            subnet: dev-www-subnet
+    router_port_db:
+        type: OS::Neutron::RouterInterface 
+        properties:
+            router: { get_resource: router}
+            subnet: dev-db-subnet
+    router:
+        type: OS::Neutron::Router 
+        properties:
+            name: router
+            external_gateway_info:
+                network: provider
